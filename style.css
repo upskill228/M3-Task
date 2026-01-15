@@ -35,14 +35,14 @@ span {
 
 button {
     cursor: pointer;
-    background-color: #212d49;
-    color: beige;
-    border-radius: 50px;
-    border: none;
-    padding: 10px;
+    background-color: beige;/* #212d49; */
+    color: #212d49;
+    border: 2px solid #212d49;
+    border-radius: 25px;
+    padding: 10px 20px;
     text-transform: uppercase;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.8rem;
     letter-spacing: 1px;
     margin-left: 20px;
     box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.3);
@@ -67,10 +67,6 @@ button {
     line-height: 3rem;
 }
 
-#listaComTarefas li.concluida {
-    text-decoration: line-through;
-}
-
 .taskForm {
     display: flex;
     flex-direction: column;
@@ -86,7 +82,7 @@ button {
 }
 
 .taskForm input {
-    width: 300%;
+    width: 100%;
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
@@ -97,7 +93,6 @@ button {
     background-color: rgb(41, 89, 92);
     border: none;
     color: #fff;
-    padding: 10px 20px;
 }
 
 .fa-paper-plane {
