@@ -1,0 +1,107 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Open Sans", sans-serif;
+    background-color: #9ddedf;
+    color: #212d49;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1.5rem;
+}
+
+h1 {
+    font-family: "Raleway", sans-serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+h2 {
+    font-size: 1rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    text-align: center;
+}
+
+span {
+    color: #d3233a;
+}
+
+button {
+    cursor: pointer;
+    background-color: #212d49;
+    color: beige;
+    border-radius: 50px;
+    border: none;
+    padding: 10px;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    margin-left: 20px;
+    box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.container {
+    width: 60vw;
+    min-height: 500px;
+    height: 55vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: beige;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
+}
+
+#listaComTarefas {
+    line-height: 3rem;
+}
+
+#listaComTarefas li.concluida {
+    text-decoration: line-through;
+}
+
+.taskForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.taskForm label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.taskForm input {
+    width: 300%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.taskForm button {
+    background-color: rgb(41, 89, 92);
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+}
+
+.fa-paper-plane {
+    margin-left: 5px;
+    color: #fff;
+    font-size: 0.8rem;
+}
