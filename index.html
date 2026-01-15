@@ -21,10 +21,19 @@
         </div>
         <ul id="listaComTarefas">
         </ul>
+        <button type="button" id="btnOrder">A-Z</button>
         <h2>Write, Edit and Delete your to do list:</h2>
         <form class="taskForm" action="">
             <label for="inputTask">Write here your next task:<span aria-hidden="true"> *</span></label>
             <input type="text" id="inputTask" name="inputTask" placeholder="Task" required="">
+            <select id="categoria" name="categoria" required>
+                <option value="" disabled selected hidden>
+                Select a category:
+                </option>
+                <option value="Trabalho">Trabalho</option>
+                <option value="Pessoal">Pessoal</option>
+                <option value="Estudo">Estudo</option>
+            </select>
             <button type="submit">Send<i class="fa-solid fa-paper-plane"></i></button>
         </form>
     </section>

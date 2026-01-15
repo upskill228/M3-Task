@@ -1,14 +1,19 @@
 // HTML / DOM
-let listaComTarefas = document.querySelector("ul") as HTMLUListElement;
+let listaComTarefas = document.querySelector("#listaComTarefas") as HTMLUListElement;
 let form = document.querySelector(".taskForm") as HTMLFormElement;
 let input = document.querySelector("input") as HTMLInputElement;
 let countTasks = document.querySelector("#countPendingTasks") as HTMLDivElement;
+let btnOrder = document.querySelector("#btnOrder") as HTMLButtonElement;
+let selectCategoria = document.querySelector("#categoria") as HTMLSelectElement;
+
+type Categoria = 'Trabalho' | 'Pessoal' | 'Estudo';
 
 //Interface
 interface Tarefa {
     id: number;
     titulo: string;
     concluida: boolean;
+    categoria: Categoria;
     dataConclusao?: Date;
 
     editarTitulo(novoTitulo: string): void;
@@ -20,12 +25,14 @@ class TarefaClass implements Tarefa {
     id: number;
     titulo: string;
     concluida: boolean;
+    categoria: Categoria;
     dataConclusao?: Date;
 
-    constructor(id: number, titulo: string) {
+    constructor(id: number, titulo: string, categoria: Categoria) {
         this.id = id;
         this.titulo = titulo;
         this.concluida = false;
+        this.categoria = categoria;
     }
 
     toggleConcluida(): void {
@@ -46,9 +53,9 @@ class TarefaClass implements Tarefa {
 
 //Array
 let listaTarefas: Tarefa[] = [
-    new TarefaClass (1, "Terminar os exercícios guiados da aula 2"),
-    new TarefaClass (2, "Começar os exercícios autónomos da aula 2"),
-    new TarefaClass (3, "Terminar os exercícios autónomos da aula 2"),
+    new TarefaClass (1, "Terminar os exercícios guiados da aula 2", "Estudo"),
+    new TarefaClass (2, "Começar os exercícios autónomos da aula 2", "Estudo"),
+    new TarefaClass (3, "Terminar os exercícios autónomos da aula 2", "Estudo"),
 ];
 
 // Botões
@@ -90,11 +97,11 @@ function addCheckmarkButton(tarefa: Tarefa): HTMLButtonElement {
             : `<i class="fa-solid fa-check-square"></i>`;
     };
 
-    updateIcon(); // ícone inicial
+    updateIcon(); // Initial Icon
 
     btnCheck.addEventListener("click", (event) => {
         event.stopPropagation();
-        (tarefa as TarefaClass).toggleConcluida();
+        tarefa.toggleConcluida();
         renderTasks();
     });
 
@@ -105,7 +112,20 @@ function addCheckmarkButton(tarefa: Tarefa): HTMLButtonElement {
 
 function addLiTask(tarefa: Tarefa): HTMLLIElement {
     const li = document.createElement("li");
+    li.classList.add("tarefa", tarefa.categoria.toLowerCase());
 
+    /* --- TÍTULO --- */
+    const tituloSpan = document.createElement("span");
+    tituloSpan.textContent = tarefa.titulo;
+    li.appendChild(tituloSpan);
+
+    /* --- CATEGORIA --- */
+    const categoriaSpan = document.createElement("span");
+    categoriaSpan.textContent = tarefa.categoria;
+    categoriaSpan.classList.add("categoria");
+    li.appendChild(categoriaSpan);
+
+    /* --- DATA DE CONCLUSÃO --- */
     if (tarefa.concluida && tarefa.dataConclusao) {
         const dataStr = tarefa.dataConclusao.toLocaleString("pt-PT", {
             day: "2-digit",
@@ -113,12 +133,16 @@ function addLiTask(tarefa: Tarefa): HTMLLIElement {
             hour: "2-digit",
             minute: "2-digit",
         });
-        li.textContent = `${tarefa.titulo} - Concluída em: ${dataStr}`;
+
+        const dataP = document.createElement("p");
+        dataP.textContent = `Concluída em: ${dataStr}`;
+        dataP.classList.add("dataConclusao");
+
+        li.appendChild(dataP);
         li.classList.add("concluida");
-    } else {
-        li.textContent = tarefa.titulo;
     }
 
+    /* --- BOTÕES --- */
     li.appendChild(addDeleteButton(tarefa));
     li.appendChild(addEditButton(tarefa));
     li.appendChild(addCheckmarkButton(tarefa));
@@ -130,7 +154,7 @@ function addLiTask(tarefa: Tarefa): HTMLLIElement {
 function renderTasks(): void {
     listaComTarefas.innerHTML = "";
     listaTarefas.forEach((tarefa) => {
-        const li = addLiTask(tarefa);
+        let li = addLiTask(tarefa);
         listaComTarefas.appendChild(li);
     });
     countPendingTasks();
@@ -141,8 +165,8 @@ form.addEventListener("submit", (event) => {
     event.preventDefault();
     const valor = input.value.trim();
     if (valor === "") return;
-
-    const novaTarefa = new TarefaClass(Date.now(), valor);
+    const categoria = selectCategoria.value as Categoria;
+    const novaTarefa = new TarefaClass(Date.now(), valor, categoria);
     listaTarefas.push(novaTarefa);
 
     renderTasks();
@@ -154,6 +178,13 @@ function countPendingTasks(): void {
     const count = listaTarefas.filter(tarefa => !tarefa.concluida).length;
     countTasks.textContent = `Pendentes: ${count}`;
 }
+
+// Order button
+btnOrder.addEventListener("click", (event) => {
+    event.stopPropagation();
+    listaTarefas.sort((a, b) => a.titulo.localeCompare(b.titulo));
+    renderTasks();
+});
 
 // Init
 renderTasks();

@@ -1,14 +1,17 @@
 // HTML / DOM
-var listaComTarefas = document.querySelector("ul");
+var listaComTarefas = document.querySelector("#listaComTarefas");
 var form = document.querySelector(".taskForm");
 var input = document.querySelector("input");
 var countTasks = document.querySelector("#countPendingTasks");
+var btnOrder = document.querySelector("#btnOrder");
+var selectCategoria = document.querySelector("#categoria");
 //Class
 var TarefaClass = /** @class */ (function () {
-    function TarefaClass(id, titulo) {
+    function TarefaClass(id, titulo, categoria) {
         this.id = id;
         this.titulo = titulo;
         this.concluida = false;
+        this.categoria = categoria;
     }
     TarefaClass.prototype.toggleConcluida = function () {
         this.concluida = !this.concluida;
@@ -29,9 +32,9 @@ var TarefaClass = /** @class */ (function () {
 }());
 //Array
 var listaTarefas = [
-    new TarefaClass(1, "Terminar os exercícios guiados da aula 2"),
-    new TarefaClass(2, "Começar os exercícios autónomos da aula 2"),
-    new TarefaClass(3, "Terminar os exercícios autónomos da aula 2"),
+    new TarefaClass(1, "Terminar os exercícios guiados da aula 2", "Estudo"),
+    new TarefaClass(2, "Começar os exercícios autónomos da aula 2", "Estudo"),
+    new TarefaClass(3, "Terminar os exercícios autónomos da aula 2", "Estudo"),
 ];
 // Botões
 // Delete Button
@@ -67,7 +70,7 @@ function addCheckmarkButton(tarefa) {
             ? "<i class=\"fa-regular fa-square\"></i>"
             : "<i class=\"fa-solid fa-check-square\"></i>";
     };
-    updateIcon(); // ícone inicial
+    updateIcon(); // Initial Icon
     btnCheck.addEventListener("click", function (event) {
         event.stopPropagation();
         tarefa.toggleConcluida();
@@ -78,6 +81,17 @@ function addCheckmarkButton(tarefa) {
 // Create li and append buttons
 function addLiTask(tarefa) {
     var li = document.createElement("li");
+    li.classList.add("tarefa", tarefa.categoria.toLowerCase());
+    /* --- TÍTULO --- */
+    var tituloSpan = document.createElement("span");
+    tituloSpan.textContent = tarefa.titulo;
+    li.appendChild(tituloSpan);
+    /* --- CATEGORIA --- */
+    var categoriaSpan = document.createElement("span");
+    categoriaSpan.textContent = tarefa.categoria;
+    categoriaSpan.classList.add("categoria");
+    li.appendChild(categoriaSpan);
+    /* --- DATA DE CONCLUSÃO --- */
     if (tarefa.concluida && tarefa.dataConclusao) {
         var dataStr = tarefa.dataConclusao.toLocaleString("pt-PT", {
             day: "2-digit",
@@ -85,12 +99,13 @@ function addLiTask(tarefa) {
             hour: "2-digit",
             minute: "2-digit",
         });
-        li.textContent = "".concat(tarefa.titulo, " - Conclu\u00EDda em: ").concat(dataStr);
+        var dataP = document.createElement("p");
+        dataP.textContent = "Conclu\u00EDda em: ".concat(dataStr);
+        dataP.classList.add("dataConclusao");
+        li.appendChild(dataP);
         li.classList.add("concluida");
     }
-    else {
-        li.textContent = tarefa.titulo;
-    }
+    /* --- BOTÕES --- */
     li.appendChild(addDeleteButton(tarefa));
     li.appendChild(addEditButton(tarefa));
     li.appendChild(addCheckmarkButton(tarefa));
@@ -111,7 +126,8 @@ form.addEventListener("submit", function (event) {
     var valor = input.value.trim();
     if (valor === "")
         return;
-    var novaTarefa = new TarefaClass(Date.now(), valor);
+    var categoria = selectCategoria.value;
+    var novaTarefa = new TarefaClass(Date.now(), valor, categoria);
     listaTarefas.push(novaTarefa);
     renderTasks();
     input.value = "";
@@ -121,5 +137,11 @@ function countPendingTasks() {
     var count = listaTarefas.filter(function (tarefa) { return !tarefa.concluida; }).length;
     countTasks.textContent = "Pendentes: ".concat(count);
 }
+// Order button
+btnOrder.addEventListener("click", function (event) {
+    event.stopPropagation();
+    listaTarefas.sort(function (a, b) { return a.titulo.localeCompare(b.titulo); });
+    renderTasks();
+});
 // Init
 renderTasks();
