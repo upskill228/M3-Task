@@ -111,6 +111,7 @@ function addLiTask(tarefa) {
     li.appendChild(addCheckmarkButton(tarefa));
     return li;
 }
+
 //Function Render
 function renderTasks() {
     listaComTarefas.innerHTML = "";
