@@ -63,23 +63,46 @@ button {
     box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
 }
 
-#listaComTarefas {
+.tarefa-li {
+     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border: 1px solid #212d49;
+    border-radius: 8px;
     line-height: 3rem;
-}
-
-.tarefa {
     font-size: 1rem;
     font-weight: 700;
 }
 
-.tarefa.concluida {
+
+.tarefa-li span.concluida {
     text-decoration: line-through;
 }
 
+.info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
 .dataConclusao {
+    font-size: 0.75rem;
+    color: #555;
+    margin-right: 15px;
+    white-space: nowrap;
     font-weight: 400;
     font-size: 0.8rem;
     line-height: 0.8rem;
+}
+
+.categoria {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
 }
 
 .taskForm {
@@ -102,15 +125,6 @@ button {
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-}
-
-.categoria {
-    margin-left: 10px;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
 }
 
 .trabalho .categoria {

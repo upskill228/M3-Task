@@ -112,20 +112,21 @@ function addCheckmarkButton(tarefa: Tarefa): HTMLButtonElement {
 
 function addLiTask(tarefa: Tarefa): HTMLLIElement {
     const li = document.createElement("li");
-    li.classList.add("tarefa", tarefa.categoria.toLowerCase());
+    li.classList.add("tarefa-li", tarefa.categoria.toLowerCase());
 
-    /* --- TÍTULO --- */
     const tituloSpan = document.createElement("span");
     tituloSpan.textContent = tarefa.titulo;
-    li.appendChild(tituloSpan);
 
-    /* --- CATEGORIA --- */
     const categoriaSpan = document.createElement("span");
     categoriaSpan.textContent = tarefa.categoria;
     categoriaSpan.classList.add("categoria");
-    li.appendChild(categoriaSpan);
 
-    /* --- DATA DE CONCLUSÃO --- */
+    const infoDiv = document.createElement("div");
+    infoDiv.classList.add("info");
+    infoDiv.appendChild(tituloSpan);
+    infoDiv.appendChild(categoriaSpan);
+    li.appendChild(infoDiv);
+
     if (tarefa.concluida && tarefa.dataConclusao) {
         const dataStr = tarefa.dataConclusao.toLocaleString("pt-PT", {
             day: "2-digit",
@@ -142,7 +143,6 @@ function addLiTask(tarefa: Tarefa): HTMLLIElement {
         li.classList.add("concluida");
     }
 
-    /* --- BOTÕES --- */
     li.appendChild(addDeleteButton(tarefa));
     li.appendChild(addEditButton(tarefa));
     li.appendChild(addCheckmarkButton(tarefa));

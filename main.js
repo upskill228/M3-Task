@@ -81,17 +81,17 @@ function addCheckmarkButton(tarefa) {
 // Create li and append buttons
 function addLiTask(tarefa) {
     var li = document.createElement("li");
-    li.classList.add("tarefa", tarefa.categoria.toLowerCase());
-    /* --- TÍTULO --- */
+    li.classList.add("tarefa-li", tarefa.categoria.toLowerCase());
     var tituloSpan = document.createElement("span");
     tituloSpan.textContent = tarefa.titulo;
-    li.appendChild(tituloSpan);
-    /* --- CATEGORIA --- */
     var categoriaSpan = document.createElement("span");
     categoriaSpan.textContent = tarefa.categoria;
     categoriaSpan.classList.add("categoria");
-    li.appendChild(categoriaSpan);
-    /* --- DATA DE CONCLUSÃO --- */
+    var infoDiv = document.createElement("div");
+    infoDiv.classList.add("info");
+    infoDiv.appendChild(tituloSpan);
+    infoDiv.appendChild(categoriaSpan);
+    li.appendChild(infoDiv);
     if (tarefa.concluida && tarefa.dataConclusao) {
         var dataStr = tarefa.dataConclusao.toLocaleString("pt-PT", {
             day: "2-digit",
@@ -105,13 +105,11 @@ function addLiTask(tarefa) {
         li.appendChild(dataP);
         li.classList.add("concluida");
     }
-    /* --- BOTÕES --- */
     li.appendChild(addDeleteButton(tarefa));
     li.appendChild(addEditButton(tarefa));
     li.appendChild(addCheckmarkButton(tarefa));
     return li;
 }
-
 //Function Render
 function renderTasks() {
     listaComTarefas.innerHTML = "";
