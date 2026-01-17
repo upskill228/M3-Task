@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 // HTML / DOM
 let taskListUl = document.querySelector("#taskListUl");
 let form = document.querySelector(".taskForm");
@@ -10,11 +8,6 @@ let selectCategory = document.querySelector("#category");
 let btnRemoveCompleted = document.querySelector("#btnRemoveCompleted");
 //Class
 class TaskClass {
-    id;
-    title;
-    completed;
-    category;
-    conclusionDate;
     constructor(id, title, category) {
         this.id = id;
         this.title = title;
@@ -158,4 +151,5 @@ searchInput.addEventListener("input", () => {
 });
 // Init
 renderTasks();
+export {};
 //# sourceMappingURL=main.js.map
