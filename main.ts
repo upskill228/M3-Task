@@ -110,38 +110,57 @@ function addLiTask(task: Task): HTMLLIElement {
     const li = document.createElement("li");
     li.classList.add("task-item", task.category.toLowerCase());
 
-    const titleSpan = document.createElement("span");
-    titleSpan.textContent = task.title;
+    if (task.completed) {
+        li.classList.add("completed");
+    }
+
+    /* HEADER */
+    const header = document.createElement("div");
+    header.classList.add("task-header");
+
+    const title = document.createElement("h3");
+    title.classList.add("task-title");
+    title.textContent = task.title;
+
+    const checkBtn = addCheckmarkButton(task);
+
+    header.append(checkBtn, title);
+
+    /* META INFO */
+    const meta = document.createElement("div");
+    meta.classList.add("task-meta");
 
     const categorySpan = document.createElement("span");
-    categorySpan.textContent = task.category;
     categorySpan.classList.add("category");
+    categorySpan.textContent = task.category;
 
-    const infoDiv = document.createElement("div");
-    infoDiv.classList.add("info");
-    infoDiv.appendChild(titleSpan);
-    infoDiv.appendChild(categorySpan);
-    li.appendChild(infoDiv);
+    meta.appendChild(categorySpan);
 
     if (task.completed && task.conclusionDate) {
-        const dataStr = task.conclusionDate.toLocaleString("pt-PT", {
+        const dateSpan = document.createElement("span");
+        dateSpan.classList.add("conclusionDate");
+
+        dateSpan.textContent = `Completed on: ${task.conclusionDate.toLocaleString("pt-PT", {
             day: "2-digit",
             month: "2-digit",
             hour: "2-digit",
             minute: "2-digit",
-        });
+        })}`;
 
-        const dataP = document.createElement("p");
-        dataP.textContent = `Task completed on: ${dataStr}`;
-        dataP.classList.add("conclusionDate");
-
-        li.appendChild(dataP);
-        li.classList.add("completed");
+        meta.appendChild(dateSpan);
     }
 
-    li.appendChild(addDeleteButton(task));
-    li.appendChild(addEditButton(task));
-    li.appendChild(addCheckmarkButton(task));
+    /* ACTIONS */
+    const actions = document.createElement("div");
+    actions.classList.add("task-actions");
+
+    actions.append(
+        addEditButton(task),
+        addDeleteButton(task)
+    );
+
+    /* ASSEMBLY */
+    li.append(header, meta, actions);
 
     return li;
 }
@@ -149,11 +168,29 @@ function addLiTask(task: Task): HTMLLIElement {
 //Function Render
 function renderTasks(tasks: Task[] = taskList): void {
     taskListUl.innerHTML = "";
+
+    if (tasks.length === 0) {
+        const li = document.createElement("li");
+        li.textContent = "No tasks found";
+        li.classList.add("no-tasks");
+        taskListUl.appendChild(li);
+        return;
+    }
+
     tasks.forEach(task => {
-         taskListUl.appendChild(addLiTask(task));
+        taskListUl.appendChild(addLiTask(task));
     });
+
     countPendingTasks();
 };
+
+// function renderTasks(tasks: Task[] = taskList): void {
+//     taskListUl.innerHTML = "";
+//     tasks.forEach(task => {
+//          taskListUl.appendChild(addLiTask(task));
+//     });
+//     countPendingTasks();
+// };
 
 //Form
 form.addEventListener("submit", (event) => {
@@ -191,11 +228,14 @@ const searchInput = document.querySelector("#searchTask") as HTMLInputElement;
 
 searchInput.addEventListener("input", () => {
     const term = searchInput.value.toLowerCase();
+
     const filtered = taskList.filter(task =>
-        task.title.toLowerCase().includes(term)
+        task.title?.toLowerCase().includes(term)
     );
+
     renderTasks(filtered);
 });
+
 
 // Init
 renderTasks();
