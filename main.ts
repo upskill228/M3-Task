@@ -41,7 +41,7 @@ class TaskClass implements Task {
         if (this.completed) {
             this.conclusionDate = new Date();
         } else {
-            this.conclusionDate = undefined;
+            delete this.conclusionDate;
         }
     }
 
