@@ -18,22 +18,24 @@
 <body>
     <section class="container">
         <h1>TO DO LIST</h1>
-        <div id="countPendingTasks">Pendentes: 0
+        <input type="text" id="searchTask" placeholder="Search tasks..." />
+        <div id="countPendingTasks">Pending Tasks: 0
         </div>
-        <ul id="listaComTarefas">
+        <ul id="taskListUl">
         </ul>
         <button type="button" id="btnOrder">A-Z</button>
+        <button type="button" id="btnRemoveCompleted">Remove Completed Tasks</button>
         <h2>Write, Edit and Delete your to do list:</h2>
         <form class="taskForm" action="">
             <label for="inputTask">Write here your next task:<span aria-hidden="true"> *</span></label>
             <input type="text" id="inputTask" name="inputTask" placeholder="Task" required="">
-            <select id="categoria" name="categoria" required>
+            <select id="category" name="category" required>
                 <option value="" disabled selected hidden>
                 Select a category:
                 </option>
-                <option value="Trabalho">Trabalho</option>
-                <option value="Pessoal">Pessoal</option>
-                <option value="Estudo">Estudo</option>
+                <option value="Work">Work</option>
+                <option value="Personal">Personal</option>
+                <option value="Study">Study</option>
             </select>
             <button type="submit">Send<i class="fa-solid fa-paper-plane"></i></button>
         </form>

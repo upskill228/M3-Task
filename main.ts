@@ -1,86 +1,83 @@
 // HTML / DOM
-let listaComTarefas = document.querySelector("#listaComTarefas") as HTMLUListElement;
+let  taskListUl = document.querySelector("#taskListUl") as HTMLUListElement;
 let form = document.querySelector(".taskForm") as HTMLFormElement;
-let input = document.querySelector("input") as HTMLInputElement;
+let input = document.querySelector("#inputTask") as HTMLInputElement;
 let countTasks = document.querySelector("#countPendingTasks") as HTMLDivElement;
 let btnOrder = document.querySelector("#btnOrder") as HTMLButtonElement;
-let selectCategoria = document.querySelector("#categoria") as HTMLSelectElement;
+let selectCategory = document.querySelector("#category") as HTMLSelectElement;
+let btnRemoveCompleted = document.querySelector("#btnRemoveCompleted") as HTMLButtonElement;
 
-type Categoria = 'Trabalho' | 'Pessoal' | 'Estudo';
+type Category = 'Work' | 'Personal' | 'Study';
 
 //Interface
-interface Tarefa {
+interface Task {
     id: number;
-    titulo: string;
-    concluida: boolean;
-    categoria: Categoria;
-    dataConclusao?: Date;
+    title: string;
+    completed: boolean;
+    category: Category;
+    conclusionDate?: Date;
 
-    editarTitulo(novoTitulo: string): void;
-    toggleConcluida(): void;
+    editTitle(newtitle: string): void;
+    toggleCompleted(): void;
 }
 
 //Class
-class TarefaClass implements Tarefa {
+class TaskClass implements Task {
     id: number;
-    titulo: string;
-    concluida: boolean;
-    categoria: Categoria;
-    dataConclusao?: Date;
+    title: string;
+    completed: boolean;
+    category: Category;
+    conclusionDate?: Date;
 
-    constructor(id: number, titulo: string, categoria: Categoria) {
+    constructor(id: number, title: string, category: Category) {
         this.id = id;
-        this.titulo = titulo;
-        this.concluida = false;
-        this.categoria = categoria;
+        this.title = title;
+        this.completed = false;
+        this.category = category;
     }
 
-    toggleConcluida(): void {
-        this.concluida = !this.concluida;
-        if (this.concluida) {
-            this.dataConclusao = new Date();
+    toggleCompleted(): void {
+        this.completed = !this.completed;
+        if (this.completed) {
+            this.conclusionDate = new Date();
         } else {
-            this.dataConclusao = undefined;
+            this.conclusionDate = undefined;
         }
     }
 
-    editarTitulo(novoTitulo: string): void {
-        const tituloLimpo = novoTitulo.trim();
-        if (tituloLimpo === "") return;
-        this.titulo = tituloLimpo;
+    editTitle(newtitle: string): void {
+        const titleTrim = newtitle.trim();
+        if (titleTrim === "") return;
+        this.title = titleTrim;
     }
 }
 
 //Array
-let listaTarefas: Tarefa[] = [
-    new TarefaClass (1, "Terminar os exercícios guiados da aula 2", "Estudo"),
-    new TarefaClass (2, "Começar os exercícios autónomos da aula 2", "Estudo"),
-    new TarefaClass (3, "Terminar os exercícios autónomos da aula 2", "Estudo"),
+let taskList: Task[] = [
+    new TaskClass (1, "This is my first made-up task", "Study"),
+    new TaskClass (2, "Mock task number 2", "Work"),
+    new TaskClass (3, "This is a mock task and a half", "Work"),
 ];
 
-// Botões
-
 // Delete Button
-function addDeleteButton(tarefa: Tarefa): HTMLButtonElement {
+function addDeleteButton(task: Task): HTMLButtonElement {
     const btnDelete = document.createElement("button");
     btnDelete.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
-    btnDelete.addEventListener("click", (event) => {
-        event.stopPropagation();
-        listaTarefas = listaTarefas.filter(t => t.id !== tarefa.id);
+    btnDelete.addEventListener("click", () => {
+        taskList = taskList.filter(t => t.id !== task.id);
         renderTasks();
     });
     return btnDelete;
 }
 
 // Edit Button
-function addEditButton(tarefa: Tarefa): HTMLButtonElement {
+function addEditButton(task: Task): HTMLButtonElement {
     const btnEdit = document.createElement("button");
     btnEdit.innerHTML = `<i class="fa-solid fa-pencil"></i>`;
-    btnEdit.addEventListener("click", (event) => {
-        event.stopPropagation();
-        const novoTitulo = prompt("Editar tarefa:", tarefa.titulo);
-        if (novoTitulo && novoTitulo.trim() !== "") {
-            tarefa.editarTitulo(novoTitulo);
+    btnEdit.addEventListener("click", () => {
+        const newtitle = prompt("Edit task:", task.title);
+        if (newtitle && newtitle.trim() !== "") {
+            task.editTitle(newtitle);
             renderTasks();
         }
     });
@@ -88,20 +85,19 @@ function addEditButton(tarefa: Tarefa): HTMLButtonElement {
 }
 
 // Checkmark button
-function addCheckmarkButton(tarefa: Tarefa): HTMLButtonElement {
+function addCheckmarkButton(task: Task): HTMLButtonElement {
     const btnCheck = document.createElement("button");
 
     const updateIcon = () => {
-        btnCheck.innerHTML = tarefa.concluida
+        btnCheck.innerHTML = task.completed
             ? `<i class="fa-regular fa-square"></i>`
             : `<i class="fa-solid fa-check-square"></i>`;
     };
 
     updateIcon(); // Initial Icon
 
-    btnCheck.addEventListener("click", (event) => {
-        event.stopPropagation();
-        tarefa.toggleConcluida();
+    btnCheck.addEventListener("click", () => {
+        task.toggleCompleted();
         renderTasks();
     });
 
@@ -110,25 +106,25 @@ function addCheckmarkButton(tarefa: Tarefa): HTMLButtonElement {
 
 // Create li and append buttons
 
-function addLiTask(tarefa: Tarefa): HTMLLIElement {
+function addLiTask(task: Task): HTMLLIElement {
     const li = document.createElement("li");
-    li.classList.add("tarefa-li", tarefa.categoria.toLowerCase());
+    li.classList.add("task-item", task.category.toLowerCase());
 
-    const tituloSpan = document.createElement("span");
-    tituloSpan.textContent = tarefa.titulo;
+    const titleSpan = document.createElement("span");
+    titleSpan.textContent = task.title;
 
-    const categoriaSpan = document.createElement("span");
-    categoriaSpan.textContent = tarefa.categoria;
-    categoriaSpan.classList.add("categoria");
+    const categorySpan = document.createElement("span");
+    categorySpan.textContent = task.category;
+    categorySpan.classList.add("category");
 
     const infoDiv = document.createElement("div");
     infoDiv.classList.add("info");
-    infoDiv.appendChild(tituloSpan);
-    infoDiv.appendChild(categoriaSpan);
+    infoDiv.appendChild(titleSpan);
+    infoDiv.appendChild(categorySpan);
     li.appendChild(infoDiv);
 
-    if (tarefa.concluida && tarefa.dataConclusao) {
-        const dataStr = tarefa.dataConclusao.toLocaleString("pt-PT", {
+    if (task.completed && task.conclusionDate) {
+        const dataStr = task.conclusionDate.toLocaleString("pt-PT", {
             day: "2-digit",
             month: "2-digit",
             hour: "2-digit",
@@ -136,38 +132,37 @@ function addLiTask(tarefa: Tarefa): HTMLLIElement {
         });
 
         const dataP = document.createElement("p");
-        dataP.textContent = `Concluída em: ${dataStr}`;
-        dataP.classList.add("dataConclusao");
+        dataP.textContent = `Task completed on: ${dataStr}`;
+        dataP.classList.add("conclusionDate");
 
         li.appendChild(dataP);
-        li.classList.add("concluida");
+        li.classList.add("completed");
     }
 
-    li.appendChild(addDeleteButton(tarefa));
-    li.appendChild(addEditButton(tarefa));
-    li.appendChild(addCheckmarkButton(tarefa));
+    li.appendChild(addDeleteButton(task));
+    li.appendChild(addEditButton(task));
+    li.appendChild(addCheckmarkButton(task));
 
     return li;
 }
 
 //Function Render
-function renderTasks(): void {
-    listaComTarefas.innerHTML = "";
-    listaTarefas.forEach((tarefa) => {
-        let li = addLiTask(tarefa);
-        listaComTarefas.appendChild(li);
+function renderTasks(tasks: Task[] = taskList): void {
+    taskListUl.innerHTML = "";
+    tasks.forEach(task => {
+         taskListUl.appendChild(addLiTask(task));
     });
     countPendingTasks();
-}
+};
 
 //Form
 form.addEventListener("submit", (event) => {
     event.preventDefault();
     const valor = input.value.trim();
     if (valor === "") return;
-    const categoria = selectCategoria.value as Categoria;
-    const novaTarefa = new TarefaClass(Date.now(), valor, categoria);
-    listaTarefas.push(novaTarefa);
+    const category = selectCategory.value as Category;
+    const newTask = new TaskClass(Date.now(), valor, category);
+    taskList.push(newTask);
 
     renderTasks();
     input.value = "";
@@ -175,15 +170,31 @@ form.addEventListener("submit", (event) => {
 
 // Count Pending Tasks
 function countPendingTasks(): void {
-    const count = listaTarefas.filter(tarefa => !tarefa.concluida).length;
-    countTasks.textContent = `Pendentes: ${count}`;
+    const count = taskList.filter(task => !task.completed).length;
+    countTasks.textContent = `Pending Tasks: ${count}`;
 }
 
-// Order button
-btnOrder.addEventListener("click", (event) => {
-    event.stopPropagation();
-    listaTarefas.sort((a, b) => a.titulo.localeCompare(b.titulo));
+// Order A-Z button
+btnOrder.addEventListener("click", () => {
+    taskList.sort((a, b) => a.title.localeCompare(b.title));
     renderTasks();
+});
+
+// Remove Completed Tasks
+btnRemoveCompleted.addEventListener("click", () => {
+    taskList = taskList.filter(task => !task.completed);
+    renderTasks();
+});
+
+// Search Bar
+const searchInput = document.querySelector("#searchTask") as HTMLInputElement;
+
+searchInput.addEventListener("input", () => {
+    const term = searchInput.value.toLowerCase();
+    const filtered = taskList.filter(task =>
+        task.title.toLowerCase().includes(term)
+    );
+    renderTasks(filtered);
 });
 
 // Init
