@@ -24,11 +24,11 @@
         <ul id="taskListUl">
         </ul>
         <div class="actions-bar">
-        <button type="button" id="btnOrder">A-Z</button>
-        <button type="button" id="btnRemoveCompleted">
-            Remove Completed Tasks
-        </button>
-</div>
+            <button type="button" id="btnShowPending">Pending</button>
+            <button type="button" id="btnShowCompleted">Completed</button>
+            <button type="button" id="btnOrder">Order A-Z</button>
+            <button type="button" id="btnClearCompleted">Clear Completed</button>
+        </div>
         <h2>Write, Edit and Delete your to do list:</h2>
         <form class="taskForm" action="">
             <label for="inputTask">Write here your next task:<span aria-hidden="true"> *</span></label>
@@ -41,6 +41,7 @@
                 <option value="Personal">Personal</option>
                 <option value="Study">Study</option>
             </select>
+            <p id="taskFormError"></p>
             <button type="submit">Send<i class="fa-solid fa-paper-plane"></i></button>
         </form>
     </section>

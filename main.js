@@ -1,12 +1,16 @@
-// HTML / DOM
-let taskListUl = document.querySelector("#taskListUl");
-let form = document.querySelector(".taskForm");
-let input = document.querySelector("#inputTask");
-let countTasks = document.querySelector("#countPendingTasks");
-let btnOrder = document.querySelector("#btnOrder");
-let selectCategory = document.querySelector("#category");
-let btnRemoveCompleted = document.querySelector("#btnRemoveCompleted");
-//Class
+// ELEMENTS
+const taskListUl = document.querySelector("#taskListUl");
+const form = document.querySelector(".taskForm");
+const input = document.querySelector("#inputTask");
+const selectCategory = document.querySelector("#category");
+const taskFormError = document.querySelector("#taskFormError");
+const countPendingTasks = document.querySelector("#countPendingTasks");
+const searchInput = document.querySelector("#searchTask");
+const btnShowPending = document.querySelector("#btnShowPending");
+const btnShowCompleted = document.querySelector("#btnShowCompleted");
+const btnOrder = document.querySelector("#btnOrder");
+const btnClearCompleted = document.querySelector("#btnClearCompleted");
+// CLASS
 class TaskClass {
     constructor(id, title, category) {
         this.id = id;
@@ -16,161 +20,178 @@ class TaskClass {
     }
     toggleCompleted() {
         this.completed = !this.completed;
-        if (this.completed) {
+        if (this.completed)
             this.conclusionDate = new Date();
-        }
-        else {
+        else
             delete this.conclusionDate;
-        }
     }
-    editTitle(newtitle) {
-        const titleTrim = newtitle.trim();
-        if (titleTrim === "")
-            return;
-        this.title = titleTrim;
+    editTitle(newTitle) {
+        const t = newTitle.trim();
+        if (t)
+            this.title = t;
     }
 }
-//Array
+// ARRAY
 let taskList = [
     new TaskClass(1, "This is my first made-up task", "Study"),
     new TaskClass(2, "Mock task number 2", "Work"),
     new TaskClass(3, "This is a mock task and a half", "Work"),
 ];
-// Delete Button
-function addDeleteButton(task) {
-    const btnDelete = document.createElement("button");
-    btnDelete.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
-    btnDelete.addEventListener("click", () => {
-        taskList = taskList.filter(t => t.id !== task.id);
-        renderTasks();
+// STATE
+let nextId = taskList.length > 0 ? Math.max(...taskList.map(t => t.id)) + 1 : 1;
+let currentFilter = "all";
+let searchTerm = "";
+let isOrderedAZ = false;
+// BUTTONS - FUNCTIONS
+function getVisibleTasks() {
+    let tasks = taskList.filter(task => {
+        if (currentFilter === "pending" && task.completed)
+            return false;
+        if (currentFilter === "completed" && !task.completed)
+            return false;
+        if (searchTerm && !task.title.toLowerCase().includes(searchTerm.toLowerCase()))
+            return false;
+        return true;
     });
-    return btnDelete;
+    if (isOrderedAZ) {
+        tasks = [...tasks].sort((a, b) => a.title.localeCompare(b.title));
+    }
+    return tasks;
 }
-// Edit Button
-function addEditButton(task) {
-    const btnEdit = document.createElement("button");
-    btnEdit.innerHTML = `<i class="fa-solid fa-pencil"></i>`;
-    btnEdit.addEventListener("click", () => {
-        const newtitle = prompt("Edit task:", task.title);
-        if (newtitle && newtitle.trim() !== "") {
-            task.editTitle(newtitle);
-            renderTasks();
+function updateButtonsText() {
+    btnShowPending.textContent = currentFilter === "pending" ? "Show All" : "Pending";
+    btnShowCompleted.textContent = currentFilter === "completed" ? "Show All" : "Completed";
+    btnOrder.textContent = isOrderedAZ ? "Original Order" : "Order A-Z";
+}
+// FUNCTIONS
+function addTaskButtons(task) {
+    const container = document.createElement("div");
+    container.classList.add("task-actions");
+    const checkBtn = document.createElement("button");
+    checkBtn.innerHTML = task.completed ? `<i class="fa-solid fa-check-square"></i>` : `<i class="fa-regular fa-square"></i>`;
+    checkBtn.addEventListener("click", () => {
+        task.toggleCompleted();
+        updateUI();
+    });
+    const editBtn = document.createElement("button");
+    editBtn.innerHTML = `<i class="fa-solid fa-pencil"></i>`;
+    editBtn.addEventListener("click", () => {
+        const newTitle = prompt("Edit task:", task.title);
+        if (newTitle)
+            task.editTitle(newTitle);
+        updateUI();
+    });
+    const delBtn = document.createElement("button");
+    delBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
+    delBtn.addEventListener("click", () => {
+        if (confirm(`Remove task "${task.title}"?`)) {
+            taskList = taskList.filter(t => t.id !== task.id);
+            updateUI();
         }
     });
-    return btnEdit;
+    container.append(checkBtn, editBtn, delBtn);
+    return container;
 }
-// Checkmark button
-function addCheckmarkButton(task) {
-    const btnCheck = document.createElement("button");
-    const updateIcon = () => {
-        btnCheck.innerHTML = task.completed
-            ? `<i class="fa-regular fa-square"></i>`
-            : `<i class="fa-solid fa-check-square"></i>`;
-    };
-    updateIcon(); // Initial Icon
-    btnCheck.addEventListener("click", () => {
-        task.toggleCompleted();
-        renderTasks();
-    });
-    return btnCheck;
-}
-// Create li and append buttons
-function addLiTask(task) {
+function createTaskLi(task) {
     const li = document.createElement("li");
-    li.classList.add("task-item", task.category.toLowerCase());
-    if (task.completed) {
-        li.classList.add("completed");
+    li.className = `task-item ${task.category.toLowerCase()} ${task.completed ? "completed" : ""}`;
+    // Highlight new task
+    if (task.id === nextId - 1) { // última adicionada
+        li.classList.add("new-task");
+        setTimeout(() => li.classList.remove("new-task"), 1000);
     }
-    /* HEADER */
     const header = document.createElement("div");
     header.classList.add("task-header");
     const title = document.createElement("h3");
-    title.classList.add("task-title");
     title.textContent = task.title;
-    const checkBtn = addCheckmarkButton(task);
-    header.append(checkBtn, title);
-    /* META INFO */
+    title.classList.add("task-title");
     const meta = document.createElement("div");
     meta.classList.add("task-meta");
-    const categorySpan = document.createElement("span");
-    categorySpan.classList.add("category");
-    categorySpan.textContent = task.category;
-    meta.appendChild(categorySpan);
+    meta.textContent = task.category;
     if (task.completed && task.conclusionDate) {
-        const dateSpan = document.createElement("span");
-        dateSpan.classList.add("conclusionDate");
-        dateSpan.textContent = `Completed on: ${task.conclusionDate.toLocaleString("pt-PT", {
-            day: "2-digit",
-            month: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-        })}`;
-        meta.appendChild(dateSpan);
+        meta.textContent += ` — Completed: ${task.conclusionDate.toLocaleString("pt-PT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`;
     }
-    /* ACTIONS */
-    const actions = document.createElement("div");
-    actions.classList.add("task-actions");
-    actions.append(addEditButton(task), addDeleteButton(task));
-    /* ASSEMBLY */
-    li.append(header, meta, actions);
+    header.append(title);
+    li.append(header, meta, addTaskButtons(task));
     return li;
 }
-//Function Render
+// RENDER
 function renderTasks(tasks = taskList) {
     taskListUl.innerHTML = "";
-    if (tasks.length === 0) {
+    if (!tasks.length) {
         const li = document.createElement("li");
-        li.textContent = "No tasks found";
+        li.textContent = searchTerm
+            ? `No tasks match "${searchTerm}"`
+            : "No tasks available";
         li.classList.add("no-tasks");
         taskListUl.appendChild(li);
         return;
     }
-    tasks.forEach(task => {
-        taskListUl.appendChild(addLiTask(task));
-    });
-    countPendingTasks();
+    tasks.forEach(task => taskListUl.appendChild(createTaskLi(task)));
+    countPendingTasksFunc();
 }
-;
-// function renderTasks(tasks: Task[] = taskList): void {
-//     taskListUl.innerHTML = "";
-//     tasks.forEach(task => {
-//          taskListUl.appendChild(addLiTask(task));
-//     });
-//     countPendingTasks();
-// };
-//Form
-form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const valor = input.value.trim();
-    if (valor === "")
-        return;
+// COUNT PENDING TASKS
+function countPendingTasksFunc() {
+    const pending = taskList.filter(t => !t.completed).length;
+    countPendingTasks.textContent = `Pending Tasks: ${pending}`;
+}
+// EVENT LISTENERS
+// Form
+form.addEventListener("submit", e => {
+    e.preventDefault();
+    taskFormError.textContent = "";
+    const title = input.value.trim();
     const category = selectCategory.value;
-    const newTask = new TaskClass(Date.now(), valor, category);
+    const titleRegex = /[a-zA-Z]{3,}/;
+    if (!titleRegex.test(title)) {
+        taskFormError.textContent = "The task title must contain at least 3 letters.";
+        return;
+    }
+    if (!category) {
+        taskFormError.textContent = "Please select a category.";
+        return;
+    }
+    const newTask = new TaskClass(nextId++, title, category);
     taskList.push(newTask);
-    renderTasks();
     input.value = "";
+    selectCategory.value = "";
+    updateUI();
 });
-// Count Pending Tasks
-function countPendingTasks() {
-    const count = taskList.filter(task => !task.completed).length;
-    countTasks.textContent = `Pending Tasks: ${count}`;
-}
-// Order A-Z button
+// Filter
+btnShowPending.addEventListener("click", () => {
+    currentFilter = currentFilter === "pending" ? "all" : "pending";
+    searchTerm = "";
+    searchInput.value = "";
+    updateUI();
+});
+btnShowCompleted.addEventListener("click", () => {
+    currentFilter = currentFilter === "completed" ? "all" : "completed";
+    searchTerm = "";
+    searchInput.value = "";
+    updateUI();
+});
+// Order
 btnOrder.addEventListener("click", () => {
-    taskList.sort((a, b) => a.title.localeCompare(b.title));
-    renderTasks();
+    isOrderedAZ = !isOrderedAZ;
+    updateUI();
 });
-// Remove Completed Tasks
-btnRemoveCompleted.addEventListener("click", () => {
-    taskList = taskList.filter(task => !task.completed);
-    renderTasks();
+// Clear completed
+btnClearCompleted.addEventListener("click", () => {
+    if (confirm("Remove all completed tasks?")) {
+        taskList = taskList.filter(t => !t.completed);
+        updateUI();
+    }
 });
-// Search Bar
-const searchInput = document.querySelector("#searchTask");
+// Search
 searchInput.addEventListener("input", () => {
-    const term = searchInput.value.toLowerCase();
-    const filtered = taskList.filter(task => { var _a; return (_a = task.title) === null || _a === void 0 ? void 0 : _a.toLowerCase().includes(term); });
-    renderTasks(filtered);
+    searchTerm = searchInput.value.trim();
+    updateUI();
 });
-// Init
-renderTasks();
+// FINAL FUNCTION
+function updateUI() {
+    renderTasks(getVisibleTasks());
+    updateButtonsText();
+    countPendingTasksFunc();
+}
+// INITIAL RENDER
+updateUI();

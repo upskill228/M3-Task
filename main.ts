@@ -1,15 +1,22 @@
-// HTML / DOM
-let  taskListUl = document.querySelector("#taskListUl") as HTMLUListElement;
-let form = document.querySelector(".taskForm") as HTMLFormElement;
-let input = document.querySelector("#inputTask") as HTMLInputElement;
-let countTasks = document.querySelector("#countPendingTasks") as HTMLDivElement;
-let btnOrder = document.querySelector("#btnOrder") as HTMLButtonElement;
-let selectCategory = document.querySelector("#category") as HTMLSelectElement;
-let btnRemoveCompleted = document.querySelector("#btnRemoveCompleted") as HTMLButtonElement;
+// ELEMENTS
+const taskListUl = document.querySelector("#taskListUl") as HTMLUListElement;
+const form = document.querySelector(".taskForm") as HTMLFormElement;
+const input = document.querySelector("#inputTask") as HTMLInputElement;
+const selectCategory = document.querySelector("#category") as HTMLSelectElement;
+const taskFormError = document.querySelector("#taskFormError") as HTMLParagraphElement;
 
+const countPendingTasks = document.querySelector("#countPendingTasks") as HTMLDivElement;
+const searchInput = document.querySelector("#searchTask") as HTMLInputElement;
+
+const btnShowPending = document.querySelector("#btnShowPending") as HTMLButtonElement;
+const btnShowCompleted = document.querySelector("#btnShowCompleted") as HTMLButtonElement;
+const btnOrder = document.querySelector("#btnOrder") as HTMLButtonElement;
+const btnClearCompleted = document.querySelector("#btnClearCompleted") as HTMLButtonElement;
+
+// TYPES & INTERFACE
 type Category = 'Work' | 'Personal' | 'Study';
+type FilterType = "all" | "pending" | "completed";
 
-//Interface
 interface Task {
     id: number;
     title: string;
@@ -17,11 +24,11 @@ interface Task {
     category: Category;
     conclusionDate?: Date;
 
-    editTitle(newtitle: string): void;
     toggleCompleted(): void;
+    editTitle(newTitle: string): void;
 }
 
-//Class
+// CLASS
 class TaskClass implements Task {
     id: number;
     title: string;
@@ -38,204 +45,203 @@ class TaskClass implements Task {
 
     toggleCompleted(): void {
         this.completed = !this.completed;
-        if (this.completed) {
-            this.conclusionDate = new Date();
-        } else {
-            delete this.conclusionDate;
-        }
+        if (this.completed) this.conclusionDate = new Date();
+        else delete this.conclusionDate;
     }
 
-    editTitle(newtitle: string): void {
-        const titleTrim = newtitle.trim();
-        if (titleTrim === "") return;
-        this.title = titleTrim;
+    editTitle(newTitle: string): void {
+        const t = newTitle.trim();
+        if (t) this.title = t;
     }
 }
 
-//Array
+// ARRAY
 let taskList: Task[] = [
     new TaskClass (1, "This is my first made-up task", "Study"),
     new TaskClass (2, "Mock task number 2", "Work"),
     new TaskClass (3, "This is a mock task and a half", "Work"),
 ];
 
-// Delete Button
-function addDeleteButton(task: Task): HTMLButtonElement {
-    const btnDelete = document.createElement("button");
-    btnDelete.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
-    btnDelete.addEventListener("click", () => {
-        taskList = taskList.filter(t => t.id !== task.id);
-        renderTasks();
-    });
-    return btnDelete;
-}
+// STATE
+let nextId = taskList.length > 0 ? Math.max(...taskList.map(t => t.id)) + 1 : 1;
+let currentFilter: FilterType = "all";
+let searchTerm = "";
+let isOrderedAZ = false;
 
-// Edit Button
-function addEditButton(task: Task): HTMLButtonElement {
-    const btnEdit = document.createElement("button");
-    btnEdit.innerHTML = `<i class="fa-solid fa-pencil"></i>`;
-    btnEdit.addEventListener("click", () => {
-        const newtitle = prompt("Edit task:", task.title);
-        if (newtitle && newtitle.trim() !== "") {
-            task.editTitle(newtitle);
-            renderTasks();
-        }
-    });
-    return btnEdit;
-}
-
-// Checkmark button
-function addCheckmarkButton(task: Task): HTMLButtonElement {
-    const btnCheck = document.createElement("button");
-
-    const updateIcon = () => {
-        btnCheck.innerHTML = task.completed
-            ? `<i class="fa-regular fa-square"></i>`
-            : `<i class="fa-solid fa-check-square"></i>`;
-    };
-
-    updateIcon(); // Initial Icon
-
-    btnCheck.addEventListener("click", () => {
-        task.toggleCompleted();
-        renderTasks();
+// BUTTONS - FUNCTIONS
+function getVisibleTasks(): Task[] {
+    let tasks = taskList.filter(task => {
+        if (currentFilter === "pending" && task.completed) return false;
+        if (currentFilter === "completed" && !task.completed) return false;
+        if (searchTerm && !task.title.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+        return true;
     });
 
-    return btnCheck;
-}
-
-// Create li and append buttons
-
-function addLiTask(task: Task): HTMLLIElement {
-    const li = document.createElement("li");
-    li.classList.add("task-item", task.category.toLowerCase());
-
-    if (task.completed) {
-        li.classList.add("completed");
+    if (isOrderedAZ) {
+        tasks = [...tasks].sort((a, b) => a.title.localeCompare(b.title));
     }
 
-    /* HEADER */
+    return tasks;
+}
+
+function updateButtonsText(): void {
+    btnShowPending.textContent = currentFilter === "pending" ? "Show All" : "Pending";
+    btnShowCompleted.textContent = currentFilter === "completed" ? "Show All" : "Completed";
+    btnOrder.textContent = isOrderedAZ ? "Original Order" : "Order A-Z";
+}
+
+// FUNCTIONS
+function addTaskButtons(task: Task): HTMLDivElement {
+    const container = document.createElement("div");
+    container.classList.add("task-actions");
+
+    const checkBtn = document.createElement("button");
+    checkBtn.innerHTML = task.completed ? `<i class="fa-solid fa-check-square"></i>` : `<i class="fa-regular fa-square"></i>`;
+    checkBtn.addEventListener("click", () => {
+        task.toggleCompleted();
+        updateUI();
+    });
+
+    const editBtn = document.createElement("button");
+    editBtn.innerHTML = `<i class="fa-solid fa-pencil"></i>`;
+    editBtn.addEventListener("click", () => {
+        const newTitle = prompt("Edit task:", task.title);
+        if (newTitle) task.editTitle(newTitle);
+        updateUI();
+    });
+
+    const delBtn = document.createElement("button");
+    delBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
+    delBtn.addEventListener("click", () => {
+        if (confirm(`Remove task "${task.title}"?`)) {
+            taskList = taskList.filter(t => t.id !== task.id);
+            updateUI();
+        }
+    });
+
+    container.append(checkBtn, editBtn, delBtn);
+    return container;
+}
+
+function createTaskLi(task: Task): HTMLLIElement {
+    const li = document.createElement("li");
+    li.className = `task-item ${task.category.toLowerCase()} ${task.completed ? "completed" : ""}`;
+
+    // Highlight new task
+    if (task.id === nextId - 1) { // última adicionada
+        li.classList.add("new-task");
+        setTimeout(() => li.classList.remove("new-task"), 1000);
+    }
+
     const header = document.createElement("div");
     header.classList.add("task-header");
 
     const title = document.createElement("h3");
-    title.classList.add("task-title");
     title.textContent = task.title;
+    title.classList.add("task-title");
 
-    const checkBtn = addCheckmarkButton(task);
-
-    header.append(checkBtn, title);
-
-    /* META INFO */
     const meta = document.createElement("div");
     meta.classList.add("task-meta");
-
-    const categorySpan = document.createElement("span");
-    categorySpan.classList.add("category");
-    categorySpan.textContent = task.category;
-
-    meta.appendChild(categorySpan);
-
+    meta.textContent = task.category;
     if (task.completed && task.conclusionDate) {
-        const dateSpan = document.createElement("span");
-        dateSpan.classList.add("conclusionDate");
-
-        dateSpan.textContent = `Completed on: ${task.conclusionDate.toLocaleString("pt-PT", {
-            day: "2-digit",
-            month: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-        })}`;
-
-        meta.appendChild(dateSpan);
+        meta.textContent += ` — Completed: ${task.conclusionDate.toLocaleString("pt-PT", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" })}`;
     }
 
-    /* ACTIONS */
-    const actions = document.createElement("div");
-    actions.classList.add("task-actions");
-
-    actions.append(
-        addEditButton(task),
-        addDeleteButton(task)
-    );
-
-    /* ASSEMBLY */
-    li.append(header, meta, actions);
-
+    header.append(title);
+    li.append(header, meta, addTaskButtons(task));
     return li;
 }
 
-//Function Render
+// RENDER
 function renderTasks(tasks: Task[] = taskList): void {
     taskListUl.innerHTML = "";
-
-    if (tasks.length === 0) {
+    if (!tasks.length) {
         const li = document.createElement("li");
-        li.textContent = "No tasks found";
+        li.textContent = searchTerm 
+            ? `No tasks match "${searchTerm}"` 
+            : "No tasks available";
         li.classList.add("no-tasks");
         taskListUl.appendChild(li);
         return;
     }
-
-    tasks.forEach(task => {
-        taskListUl.appendChild(addLiTask(task));
-    });
-
-    countPendingTasks();
-};
-
-// function renderTasks(tasks: Task[] = taskList): void {
-//     taskListUl.innerHTML = "";
-//     tasks.forEach(task => {
-//          taskListUl.appendChild(addLiTask(task));
-//     });
-//     countPendingTasks();
-// };
-
-//Form
-form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const valor = input.value.trim();
-    if (valor === "") return;
-    const category = selectCategory.value as Category;
-    const newTask = new TaskClass(Date.now(), valor, category);
-    taskList.push(newTask);
-
-    renderTasks();
-    input.value = "";
-});
-
-// Count Pending Tasks
-function countPendingTasks(): void {
-    const count = taskList.filter(task => !task.completed).length;
-    countTasks.textContent = `Pending Tasks: ${count}`;
+    tasks.forEach(task => taskListUl.appendChild(createTaskLi(task)));
+    countPendingTasksFunc();
 }
 
-// Order A-Z button
+// COUNT PENDING TASKS
+function countPendingTasksFunc(): void {
+    const pending = taskList.filter(t => !t.completed).length;
+    countPendingTasks.textContent = `Pending Tasks: ${pending}`;
+}
+
+// EVENT LISTENERS
+// Form
+form.addEventListener("submit", e => {
+    e.preventDefault();
+    taskFormError.textContent = "";
+
+    const title = input.value.trim();
+    const category = selectCategory.value as Category;
+    const titleRegex = /[a-zA-Z]{3,}/;
+
+    if (!titleRegex.test(title)) {
+        taskFormError.textContent = "The task title must contain at least 3 letters.";
+        return;
+    }
+
+    if (!category) {
+        taskFormError.textContent = "Please select a category.";
+        return;
+    }
+
+    const newTask = new TaskClass(nextId++, title, category);
+    taskList.push(newTask);
+
+    input.value = "";
+    selectCategory.value = "";
+    updateUI();
+});
+
+// Filter
+btnShowPending.addEventListener("click", () => {
+    currentFilter = currentFilter === "pending" ? "all" : "pending";
+    searchTerm = "";
+    searchInput.value = "";
+    updateUI();
+});
+btnShowCompleted.addEventListener("click", () => {
+    currentFilter = currentFilter === "completed" ? "all" : "completed";
+    searchTerm = "";
+    searchInput.value = "";
+    updateUI();
+});
+
+// Order
 btnOrder.addEventListener("click", () => {
-    taskList.sort((a, b) => a.title.localeCompare(b.title));
-    renderTasks();
+    isOrderedAZ = !isOrderedAZ;
+    updateUI();
 });
 
-// Remove Completed Tasks
-btnRemoveCompleted.addEventListener("click", () => {
-    taskList = taskList.filter(task => !task.completed);
-    renderTasks();
+// Clear completed
+btnClearCompleted.addEventListener("click", () => {
+    if (confirm("Remove all completed tasks?")) {
+        taskList = taskList.filter(t => !t.completed);
+        updateUI();
+    }
 });
 
-// Search Bar
-const searchInput = document.querySelector("#searchTask") as HTMLInputElement;
-
+// Search
 searchInput.addEventListener("input", () => {
-    const term = searchInput.value.toLowerCase();
-
-    const filtered = taskList.filter(task =>
-        task.title?.toLowerCase().includes(term)
-    );
-
-    renderTasks(filtered);
+    searchTerm = searchInput.value.trim();
+    updateUI();
 });
 
+// FINAL FUNCTION
+function updateUI(): void {
+    renderTasks(getVisibleTasks());
+    updateButtonsText();
+    countPendingTasksFunc();
+}
 
-// Init
-renderTasks();
+// INITIAL RENDER
+updateUI();

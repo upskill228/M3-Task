@@ -186,6 +186,12 @@ button:hover {
     border: 1px solid #ccc;
 }
 
+#taskFormError {
+    color: #b00020;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
 /* Submit button */
 .taskForm button {
     align-self: center;
