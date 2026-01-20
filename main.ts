@@ -99,7 +99,7 @@ function addTaskButtons(task: Task): HTMLDivElement {
 
     const checkBtn = document.createElement("button");
     checkBtn.type = "button";
-    checkBtn.innerHTML = task.completed ? `<i class="fa-solid fa-check-square"></i>` : `<i class="fa-regular fa-square"></i>`;
+    checkBtn.innerHTML = task.completed ? `<i class="fa-regular fa-square"></i>` : `<i class="fa-solid fa-check-square"></i>`;
     checkBtn.addEventListener("click", () => {
         task.toggleCompleted();
         updateUI();
@@ -204,8 +204,7 @@ form.addEventListener("submit", e => {
     const newTask = new TaskClass(nextId++, title, category);
     taskList.push(newTask);
 
-    input.value = "";
-    selectCategory.value = "";
+    form.reset();
     updateUI();
 });
 
