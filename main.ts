@@ -229,10 +229,9 @@ btnOrder.addEventListener("click", () => {
 
 // Clear completed
 btnClearCompleted.addEventListener("click", () => {
-    if (confirm("Remove all completed tasks?")) {
         taskList = taskList.filter(t => !t.completed);
+
         updateUI();
-    }
 });
 
 // Search
