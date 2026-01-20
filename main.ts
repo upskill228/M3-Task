@@ -118,10 +118,9 @@ function addTaskButtons(task: Task): HTMLDivElement {
     delBtn.type = "button";
     delBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
     delBtn.addEventListener("click", () => {
-        if (confirm(`Remove task "${task.title}"?`)) {
             taskList = taskList.filter(t => t.id !== task.id);
+
             updateUI();
-        }
     });
 
     container.append(checkBtn, editBtn, delBtn);
