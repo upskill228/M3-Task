@@ -18,7 +18,15 @@
 <body>
     <section class="container">
         <h1>TO DO LIST</h1>
-        <input type="text" id="searchTask" placeholder="Search tasks..." />
+        <div class="search-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+                type="text"
+                id="searchTask"
+                placeholder="Search task by title..."
+                aria-label="Search task by title"
+            />
+        </div>
         <div id="countPendingTasks">Pending Tasks: 0
         </div>
         <ul id="taskListUl">

@@ -128,10 +128,10 @@ function createTaskLi(task: Task): HTMLLIElement {
     li.className = `task-item ${task.category.toLowerCase()} ${task.completed ? "completed" : ""}`;
 
     // Highlight new task
-    if (task.id === nextId - 1) { // última adicionada
-        li.classList.add("new-task");
-        setTimeout(() => li.classList.remove("new-task"), 1000);
-    }
+    // if (task.id === nextId - 1) { // última adicionada
+    //     li.classList.add("new-task");
+    //     setTimeout(() => li.classList.remove("new-task"), 1000);
+    // }
 
     const header = document.createElement("div");
     header.classList.add("task-header");

@@ -47,12 +47,31 @@ h2 {
 }
 
 /* Search */
-#searchTask {
-    width: 100%;
-    padding: 10px;
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-wrapper i {
+    cursor: pointer;
+}
+
+.search-wrapper input {
+    width: 0;
+    opacity: 0;
+    padding: 8px 0;
     border-radius: 6px;
     border: 1px solid #ccc;
     font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.search-wrapper:hover input,
+.search-wrapper input:focus {
+    width: 220px;
+    opacity: 1;
+    padding: 8px 10px;
 }
 
 /* Count */
@@ -129,6 +148,16 @@ h2 {
 .task-item.completed .task-title {
     text-decoration: line-through;
 }
+
+/* New tasks */
+/* .new-task {
+    animation: highlightNew 1s ease-out;
+}
+
+@keyframes highlightNew {
+    0% { background-color: #fffb99; }
+    100% { background-color: white; }
+} */
 
 /* No tasks */
 .no-tasks {
