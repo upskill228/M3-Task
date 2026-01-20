@@ -6,7 +6,9 @@ const selectCategory = document.querySelector("#category") as HTMLSelectElement;
 const taskFormError = document.querySelector("#taskFormError") as HTMLParagraphElement;
 
 const countPendingTasks = document.querySelector("#countPendingTasks") as HTMLDivElement;
+
 const searchInput = document.querySelector("#searchTask") as HTMLInputElement;
+const clearSearchBtn = document.querySelector(".clear-search") as HTMLButtonElement;
 
 const btnShowPending = document.querySelector("#btnShowPending") as HTMLButtonElement;
 const btnShowCompleted = document.querySelector("#btnShowCompleted") as HTMLButtonElement;
@@ -96,6 +98,7 @@ function addTaskButtons(task: Task): HTMLDivElement {
     container.classList.add("task-actions");
 
     const checkBtn = document.createElement("button");
+    checkBtn.type = "button";
     checkBtn.innerHTML = task.completed ? `<i class="fa-solid fa-check-square"></i>` : `<i class="fa-regular fa-square"></i>`;
     checkBtn.addEventListener("click", () => {
         task.toggleCompleted();
@@ -103,6 +106,7 @@ function addTaskButtons(task: Task): HTMLDivElement {
     });
 
     const editBtn = document.createElement("button");
+    editBtn.type = "button";
     editBtn.innerHTML = `<i class="fa-solid fa-pencil"></i>`;
     editBtn.addEventListener("click", () => {
         const newTitle = prompt("Edit task:", task.title);
@@ -111,6 +115,7 @@ function addTaskButtons(task: Task): HTMLDivElement {
     });
 
     const delBtn = document.createElement("button");
+    delBtn.type = "button";
     delBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
     delBtn.addEventListener("click", () => {
         if (confirm(`Remove task "${task.title}"?`)) {
@@ -136,7 +141,7 @@ function createTaskLi(task: Task): HTMLLIElement {
     const header = document.createElement("div");
     header.classList.add("task-header");
 
-    const title = document.createElement("h3");
+    const title = document.createElement("h4");
     title.textContent = task.title;
     title.classList.add("task-title");
 
@@ -171,7 +176,9 @@ function renderTasks(tasks: Task[] = taskList): void {
 // COUNT PENDING TASKS
 function countPendingTasksFunc(): void {
     const pending = taskList.filter(t => !t.completed).length;
-    countPendingTasks.textContent = `Pending Tasks: ${pending}`;
+    countPendingTasks.innerHTML = `
+    <h3>Stats</h3>
+    <p>Pending Tasks: <strong>${pending}</strong></p>`;
 }
 
 // EVENT LISTENERS
@@ -233,6 +240,12 @@ btnClearCompleted.addEventListener("click", () => {
 // Search
 searchInput.addEventListener("input", () => {
     searchTerm = searchInput.value.trim();
+    updateUI();
+});
+
+clearSearchBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    searchTerm = "";
     updateUI();
 });
 

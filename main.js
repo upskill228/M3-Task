@@ -6,6 +6,7 @@ const selectCategory = document.querySelector("#category");
 const taskFormError = document.querySelector("#taskFormError");
 const countPendingTasks = document.querySelector("#countPendingTasks");
 const searchInput = document.querySelector("#searchTask");
+const clearSearchBtn = document.querySelector(".clear-search");
 const btnShowPending = document.querySelector("#btnShowPending");
 const btnShowCompleted = document.querySelector("#btnShowCompleted");
 const btnOrder = document.querySelector("#btnOrder");
@@ -68,12 +69,14 @@ function addTaskButtons(task) {
     const container = document.createElement("div");
     container.classList.add("task-actions");
     const checkBtn = document.createElement("button");
+    checkBtn.type = "button";
     checkBtn.innerHTML = task.completed ? `<i class="fa-solid fa-check-square"></i>` : `<i class="fa-regular fa-square"></i>`;
     checkBtn.addEventListener("click", () => {
         task.toggleCompleted();
         updateUI();
     });
     const editBtn = document.createElement("button");
+    editBtn.type = "button";
     editBtn.innerHTML = `<i class="fa-solid fa-pencil"></i>`;
     editBtn.addEventListener("click", () => {
         const newTitle = prompt("Edit task:", task.title);
@@ -82,6 +85,7 @@ function addTaskButtons(task) {
         updateUI();
     });
     const delBtn = document.createElement("button");
+    delBtn.type = "button";
     delBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
     delBtn.addEventListener("click", () => {
         if (confirm(`Remove task "${task.title}"?`)) {
@@ -102,7 +106,7 @@ function createTaskLi(task) {
     // }
     const header = document.createElement("div");
     header.classList.add("task-header");
-    const title = document.createElement("h3");
+    const title = document.createElement("h4");
     title.textContent = task.title;
     title.classList.add("task-title");
     const meta = document.createElement("div");
@@ -133,7 +137,9 @@ function renderTasks(tasks = taskList) {
 // COUNT PENDING TASKS
 function countPendingTasksFunc() {
     const pending = taskList.filter(t => !t.completed).length;
-    countPendingTasks.textContent = `Pending Tasks: ${pending}`;
+    countPendingTasks.innerHTML = `
+    <h3>Stats</h3>
+    <p>Pending Tasks: <strong>${pending}</strong></p>`;
 }
 // EVENT LISTENERS
 // Form
@@ -185,6 +191,11 @@ btnClearCompleted.addEventListener("click", () => {
 // Search
 searchInput.addEventListener("input", () => {
     searchTerm = searchInput.value.trim();
+    updateUI();
+});
+clearSearchBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    searchTerm = "";
     updateUI();
 });
 // FINAL FUNCTION
